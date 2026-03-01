@@ -1,0 +1,862 @@
+{
+  "city": "madison",
+  "city_label": "Madison (MG&E Rg-2A)",
+  "flat_rate": 0.1885,
+  "prices_by_hour": [
+    0.139,
+    0.139,
+    0.139,
+    0.139,
+    0.139,
+    0.139,
+    0.139,
+    0.139,
+    0.139,
+    0.139,
+    0.234,
+    0.234,
+    0.234,
+    0.248,
+    0.248,
+    0.248,
+    0.248,
+    0.248,
+    0.248,
+    0.244,
+    0.244,
+    0.244,
+    0.139,
+    0.139
+  ],
+  "shift_fraction": 0.45,
+  "total_kwh": 7.53,
+  "original_cost": 1.5402,
+  "optimized_cost": 1.3672,
+  "savings": 0.173,
+  "savings_pct": 11.2,
+  "peak_exposure_pct": 47.6,
+  "hourly_actual": [
+    0.0653,
+    0.0608,
+    0.0622,
+    0.0628,
+    0.0621,
+    0.0602,
+    0.1057,
+    0.2569,
+    0.2725,
+    0.217,
+    0.1943,
+    0.1878,
+    0.1899,
+    0.1867,
+    0.1707,
+    0.1583,
+    0.162,
+    0.1898,
+    0.2313,
+    0.2579,
+    0.2586,
+    0.1754,
+    0.0983,
+    0.0788
+  ],
+  "hourly_optimized": [
+    0.1028,
+    0.0957,
+    0.098,
+    0.099,
+    0.0977,
+    0.0948,
+    0.1664,
+    0.4044,
+    0.429,
+    0.3416,
+    0.1943,
+    0.1878,
+    0.1899,
+    0.1026,
+    0.0939,
+    0.0871,
+    0.0892,
+    0.1043,
+    0.1272,
+    0.1418,
+    0.1422,
+    0.0965,
+    0.1549,
+    0.124
+  ],
+  "slots_original": [
+    {
+      "Timestamp": "2010-11-26 21:30",
+      "Hour": 21,
+      "kWh": 0.1104,
+      "Period": "PEAK",
+      "Rate": 0.244,
+      "Cost": 0.0269
+    },
+    {
+      "Timestamp": "2010-11-26 22:00",
+      "Hour": 22,
+      "kWh": 0.1033,
+      "Period": "OFF-PEAK",
+      "Rate": 0.139,
+      "Cost": 0.0144
+    },
+    {
+      "Timestamp": "2010-11-26 22:30",
+      "Hour": 22,
+      "kWh": 0.0934,
+      "Period": "OFF-PEAK",
+      "Rate": 0.139,
+      "Cost": 0.013
+    },
+    {
+      "Timestamp": "2010-11-26 23:00",
+      "Hour": 23,
+      "kWh": 0.0834,
+      "Period": "OFF-PEAK",
+      "Rate": 0.139,
+      "Cost": 0.0116
+    },
+    {
+      "Timestamp": "2010-11-26 23:30",
+      "Hour": 23,
+      "kWh": 0.0741,
+      "Period": "OFF-PEAK",
+      "Rate": 0.139,
+      "Cost": 0.0103
+    },
+    {
+      "Timestamp": "2010-11-27 00:00",
+      "Hour": 0,
+      "kWh": 0.0686,
+      "Period": "OFF-PEAK",
+      "Rate": 0.139,
+      "Cost": 0.0095
+    },
+    {
+      "Timestamp": "2010-11-27 00:30",
+      "Hour": 0,
+      "kWh": 0.062,
+      "Period": "OFF-PEAK",
+      "Rate": 0.139,
+      "Cost": 0.0086
+    },
+    {
+      "Timestamp": "2010-11-27 01:00",
+      "Hour": 1,
+      "kWh": 0.061,
+      "Period": "OFF-PEAK",
+      "Rate": 0.139,
+      "Cost": 0.0085
+    },
+    {
+      "Timestamp": "2010-11-27 01:30",
+      "Hour": 1,
+      "kWh": 0.0606,
+      "Period": "OFF-PEAK",
+      "Rate": 0.139,
+      "Cost": 0.0084
+    },
+    {
+      "Timestamp": "2010-11-27 02:00",
+      "Hour": 2,
+      "kWh": 0.0617,
+      "Period": "OFF-PEAK",
+      "Rate": 0.139,
+      "Cost": 0.0086
+    },
+    {
+      "Timestamp": "2010-11-27 02:30",
+      "Hour": 2,
+      "kWh": 0.0627,
+      "Period": "OFF-PEAK",
+      "Rate": 0.139,
+      "Cost": 0.0087
+    },
+    {
+      "Timestamp": "2010-11-27 03:00",
+      "Hour": 3,
+      "kWh": 0.0628,
+      "Period": "OFF-PEAK",
+      "Rate": 0.139,
+      "Cost": 0.0087
+    },
+    {
+      "Timestamp": "2010-11-27 03:30",
+      "Hour": 3,
+      "kWh": 0.0628,
+      "Period": "OFF-PEAK",
+      "Rate": 0.139,
+      "Cost": 0.0087
+    },
+    {
+      "Timestamp": "2010-11-27 04:00",
+      "Hour": 4,
+      "kWh": 0.0625,
+      "Period": "OFF-PEAK",
+      "Rate": 0.139,
+      "Cost": 0.0087
+    },
+    {
+      "Timestamp": "2010-11-27 04:30",
+      "Hour": 4,
+      "kWh": 0.0616,
+      "Period": "OFF-PEAK",
+      "Rate": 0.139,
+      "Cost": 0.0086
+    },
+    {
+      "Timestamp": "2010-11-27 05:00",
+      "Hour": 5,
+      "kWh": 0.0599,
+      "Period": "OFF-PEAK",
+      "Rate": 0.139,
+      "Cost": 0.0083
+    },
+    {
+      "Timestamp": "2010-11-27 05:30",
+      "Hour": 5,
+      "kWh": 0.0605,
+      "Period": "OFF-PEAK",
+      "Rate": 0.139,
+      "Cost": 0.0084
+    },
+    {
+      "Timestamp": "2010-11-27 06:00",
+      "Hour": 6,
+      "kWh": 0.0709,
+      "Period": "OFF-PEAK",
+      "Rate": 0.139,
+      "Cost": 0.0099
+    },
+    {
+      "Timestamp": "2010-11-27 06:30",
+      "Hour": 6,
+      "kWh": 0.1405,
+      "Period": "OFF-PEAK",
+      "Rate": 0.139,
+      "Cost": 0.0195
+    },
+    {
+      "Timestamp": "2010-11-27 07:00",
+      "Hour": 7,
+      "kWh": 0.2311,
+      "Period": "OFF-PEAK",
+      "Rate": 0.139,
+      "Cost": 0.0321
+    },
+    {
+      "Timestamp": "2010-11-27 07:30",
+      "Hour": 7,
+      "kWh": 0.2827,
+      "Period": "OFF-PEAK",
+      "Rate": 0.139,
+      "Cost": 0.0393
+    },
+    {
+      "Timestamp": "2010-11-27 08:00",
+      "Hour": 8,
+      "kWh": 0.2885,
+      "Period": "OFF-PEAK",
+      "Rate": 0.139,
+      "Cost": 0.0401
+    },
+    {
+      "Timestamp": "2010-11-27 08:30",
+      "Hour": 8,
+      "kWh": 0.2565,
+      "Period": "OFF-PEAK",
+      "Rate": 0.139,
+      "Cost": 0.0357
+    },
+    {
+      "Timestamp": "2010-11-27 09:00",
+      "Hour": 9,
+      "kWh": 0.2258,
+      "Period": "OFF-PEAK",
+      "Rate": 0.139,
+      "Cost": 0.0314
+    },
+    {
+      "Timestamp": "2010-11-27 09:30",
+      "Hour": 9,
+      "kWh": 0.2081,
+      "Period": "OFF-PEAK",
+      "Rate": 0.139,
+      "Cost": 0.0289
+    },
+    {
+      "Timestamp": "2010-11-27 10:00",
+      "Hour": 10,
+      "kWh": 0.1976,
+      "Period": "MID-PEAK",
+      "Rate": 0.234,
+      "Cost": 0.0462
+    },
+    {
+      "Timestamp": "2010-11-27 10:30",
+      "Hour": 10,
+      "kWh": 0.1911,
+      "Period": "MID-PEAK",
+      "Rate": 0.234,
+      "Cost": 0.0447
+    },
+    {
+      "Timestamp": "2010-11-27 11:00",
+      "Hour": 11,
+      "kWh": 0.1878,
+      "Period": "MID-PEAK",
+      "Rate": 0.234,
+      "Cost": 0.044
+    },
+    {
+      "Timestamp": "2010-11-27 11:30",
+      "Hour": 11,
+      "kWh": 0.1878,
+      "Period": "MID-PEAK",
+      "Rate": 0.234,
+      "Cost": 0.044
+    },
+    {
+      "Timestamp": "2010-11-27 12:00",
+      "Hour": 12,
+      "kWh": 0.1891,
+      "Period": "MID-PEAK",
+      "Rate": 0.234,
+      "Cost": 0.0442
+    },
+    {
+      "Timestamp": "2010-11-27 12:30",
+      "Hour": 12,
+      "kWh": 0.1907,
+      "Period": "MID-PEAK",
+      "Rate": 0.234,
+      "Cost": 0.0446
+    },
+    {
+      "Timestamp": "2010-11-27 13:00",
+      "Hour": 13,
+      "kWh": 0.1894,
+      "Period": "PEAK",
+      "Rate": 0.248,
+      "Cost": 0.047
+    },
+    {
+      "Timestamp": "2010-11-27 13:30",
+      "Hour": 13,
+      "kWh": 0.1839,
+      "Period": "PEAK",
+      "Rate": 0.248,
+      "Cost": 0.0456
+    },
+    {
+      "Timestamp": "2010-11-27 14:00",
+      "Hour": 14,
+      "kWh": 0.1751,
+      "Period": "PEAK",
+      "Rate": 0.248,
+      "Cost": 0.0434
+    },
+    {
+      "Timestamp": "2010-11-27 14:30",
+      "Hour": 14,
+      "kWh": 0.1663,
+      "Period": "PEAK",
+      "Rate": 0.248,
+      "Cost": 0.0412
+    },
+    {
+      "Timestamp": "2010-11-27 15:00",
+      "Hour": 15,
+      "kWh": 0.1596,
+      "Period": "PEAK",
+      "Rate": 0.248,
+      "Cost": 0.0396
+    },
+    {
+      "Timestamp": "2010-11-27 15:30",
+      "Hour": 15,
+      "kWh": 0.157,
+      "Period": "PEAK",
+      "Rate": 0.248,
+      "Cost": 0.0389
+    },
+    {
+      "Timestamp": "2010-11-27 16:00",
+      "Hour": 16,
+      "kWh": 0.1585,
+      "Period": "PEAK",
+      "Rate": 0.248,
+      "Cost": 0.0393
+    },
+    {
+      "Timestamp": "2010-11-27 16:30",
+      "Hour": 16,
+      "kWh": 0.1656,
+      "Period": "PEAK",
+      "Rate": 0.248,
+      "Cost": 0.0411
+    },
+    {
+      "Timestamp": "2010-11-27 17:00",
+      "Hour": 17,
+      "kWh": 0.1797,
+      "Period": "PEAK",
+      "Rate": 0.248,
+      "Cost": 0.0446
+    },
+    {
+      "Timestamp": "2010-11-27 17:30",
+      "Hour": 17,
+      "kWh": 0.1999,
+      "Period": "PEAK",
+      "Rate": 0.248,
+      "Cost": 0.0496
+    },
+    {
+      "Timestamp": "2010-11-27 18:00",
+      "Hour": 18,
+      "kWh": 0.2218,
+      "Period": "PEAK",
+      "Rate": 0.248,
+      "Cost": 0.055
+    },
+    {
+      "Timestamp": "2010-11-27 18:30",
+      "Hour": 18,
+      "kWh": 0.2407,
+      "Period": "PEAK",
+      "Rate": 0.248,
+      "Cost": 0.0597
+    },
+    {
+      "Timestamp": "2010-11-27 19:00",
+      "Hour": 19,
+      "kWh": 0.254,
+      "Period": "PEAK",
+      "Rate": 0.244,
+      "Cost": 0.062
+    },
+    {
+      "Timestamp": "2010-11-27 19:30",
+      "Hour": 19,
+      "kWh": 0.2617,
+      "Period": "PEAK",
+      "Rate": 0.244,
+      "Cost": 0.0638
+    },
+    {
+      "Timestamp": "2010-11-27 20:00",
+      "Hour": 20,
+      "kWh": 0.262,
+      "Period": "PEAK",
+      "Rate": 0.244,
+      "Cost": 0.0639
+    },
+    {
+      "Timestamp": "2010-11-27 20:30",
+      "Hour": 20,
+      "kWh": 0.2552,
+      "Period": "PEAK",
+      "Rate": 0.244,
+      "Cost": 0.0623
+    },
+    {
+      "Timestamp": "2010-11-27 21:00",
+      "Hour": 21,
+      "kWh": 0.2405,
+      "Period": "PEAK",
+      "Rate": 0.244,
+      "Cost": 0.0587
+    }
+  ],
+  "slots_optimized": [
+    {
+      "Timestamp": "2010-11-26 21:30",
+      "Hour": 21,
+      "kWh": 0.0607,
+      "Period": "PEAK",
+      "Rate": 0.244,
+      "Cost": 0.0148
+    },
+    {
+      "Timestamp": "2010-11-26 22:00",
+      "Hour": 22,
+      "kWh": 0.1627,
+      "Period": "OFF-PEAK",
+      "Rate": 0.139,
+      "Cost": 0.0226
+    },
+    {
+      "Timestamp": "2010-11-26 22:30",
+      "Hour": 22,
+      "kWh": 0.1471,
+      "Period": "OFF-PEAK",
+      "Rate": 0.139,
+      "Cost": 0.0204
+    },
+    {
+      "Timestamp": "2010-11-26 23:00",
+      "Hour": 23,
+      "kWh": 0.1314,
+      "Period": "OFF-PEAK",
+      "Rate": 0.139,
+      "Cost": 0.0183
+    },
+    {
+      "Timestamp": "2010-11-26 23:30",
+      "Hour": 23,
+      "kWh": 0.1167,
+      "Period": "OFF-PEAK",
+      "Rate": 0.139,
+      "Cost": 0.0162
+    },
+    {
+      "Timestamp": "2010-11-27 00:00",
+      "Hour": 0,
+      "kWh": 0.108,
+      "Period": "OFF-PEAK",
+      "Rate": 0.139,
+      "Cost": 0.015
+    },
+    {
+      "Timestamp": "2010-11-27 00:30",
+      "Hour": 0,
+      "kWh": 0.0976,
+      "Period": "OFF-PEAK",
+      "Rate": 0.139,
+      "Cost": 0.0136
+    },
+    {
+      "Timestamp": "2010-11-27 01:00",
+      "Hour": 1,
+      "kWh": 0.096,
+      "Period": "OFF-PEAK",
+      "Rate": 0.139,
+      "Cost": 0.0133
+    },
+    {
+      "Timestamp": "2010-11-27 01:30",
+      "Hour": 1,
+      "kWh": 0.0954,
+      "Period": "OFF-PEAK",
+      "Rate": 0.139,
+      "Cost": 0.0133
+    },
+    {
+      "Timestamp": "2010-11-27 02:00",
+      "Hour": 2,
+      "kWh": 0.0971,
+      "Period": "OFF-PEAK",
+      "Rate": 0.139,
+      "Cost": 0.0135
+    },
+    {
+      "Timestamp": "2010-11-27 02:30",
+      "Hour": 2,
+      "kWh": 0.0988,
+      "Period": "OFF-PEAK",
+      "Rate": 0.139,
+      "Cost": 0.0137
+    },
+    {
+      "Timestamp": "2010-11-27 03:00",
+      "Hour": 3,
+      "kWh": 0.099,
+      "Period": "OFF-PEAK",
+      "Rate": 0.139,
+      "Cost": 0.0138
+    },
+    {
+      "Timestamp": "2010-11-27 03:30",
+      "Hour": 3,
+      "kWh": 0.0989,
+      "Period": "OFF-PEAK",
+      "Rate": 0.139,
+      "Cost": 0.0138
+    },
+    {
+      "Timestamp": "2010-11-27 04:00",
+      "Hour": 4,
+      "kWh": 0.0984,
+      "Period": "OFF-PEAK",
+      "Rate": 0.139,
+      "Cost": 0.0137
+    },
+    {
+      "Timestamp": "2010-11-27 04:30",
+      "Hour": 4,
+      "kWh": 0.097,
+      "Period": "OFF-PEAK",
+      "Rate": 0.139,
+      "Cost": 0.0135
+    },
+    {
+      "Timestamp": "2010-11-27 05:00",
+      "Hour": 5,
+      "kWh": 0.0944,
+      "Period": "OFF-PEAK",
+      "Rate": 0.139,
+      "Cost": 0.0131
+    },
+    {
+      "Timestamp": "2010-11-27 05:30",
+      "Hour": 5,
+      "kWh": 0.0953,
+      "Period": "OFF-PEAK",
+      "Rate": 0.139,
+      "Cost": 0.0132
+    },
+    {
+      "Timestamp": "2010-11-27 06:00",
+      "Hour": 6,
+      "kWh": 0.1116,
+      "Period": "OFF-PEAK",
+      "Rate": 0.139,
+      "Cost": 0.0155
+    },
+    {
+      "Timestamp": "2010-11-27 06:30",
+      "Hour": 6,
+      "kWh": 0.2213,
+      "Period": "OFF-PEAK",
+      "Rate": 0.139,
+      "Cost": 0.0308
+    },
+    {
+      "Timestamp": "2010-11-27 07:00",
+      "Hour": 7,
+      "kWh": 0.3638,
+      "Period": "OFF-PEAK",
+      "Rate": 0.139,
+      "Cost": 0.0506
+    },
+    {
+      "Timestamp": "2010-11-27 07:30",
+      "Hour": 7,
+      "kWh": 0.4451,
+      "Period": "OFF-PEAK",
+      "Rate": 0.139,
+      "Cost": 0.0619
+    },
+    {
+      "Timestamp": "2010-11-27 08:00",
+      "Hour": 8,
+      "kWh": 0.4542,
+      "Period": "OFF-PEAK",
+      "Rate": 0.139,
+      "Cost": 0.0631
+    },
+    {
+      "Timestamp": "2010-11-27 08:30",
+      "Hour": 8,
+      "kWh": 0.4039,
+      "Period": "OFF-PEAK",
+      "Rate": 0.139,
+      "Cost": 0.0561
+    },
+    {
+      "Timestamp": "2010-11-27 09:00",
+      "Hour": 9,
+      "kWh": 0.3555,
+      "Period": "OFF-PEAK",
+      "Rate": 0.139,
+      "Cost": 0.0494
+    },
+    {
+      "Timestamp": "2010-11-27 09:30",
+      "Hour": 9,
+      "kWh": 0.3277,
+      "Period": "OFF-PEAK",
+      "Rate": 0.139,
+      "Cost": 0.0456
+    },
+    {
+      "Timestamp": "2010-11-27 10:00",
+      "Hour": 10,
+      "kWh": 0.1976,
+      "Period": "MID-PEAK",
+      "Rate": 0.234,
+      "Cost": 0.0462
+    },
+    {
+      "Timestamp": "2010-11-27 10:30",
+      "Hour": 10,
+      "kWh": 0.1911,
+      "Period": "MID-PEAK",
+      "Rate": 0.234,
+      "Cost": 0.0447
+    },
+    {
+      "Timestamp": "2010-11-27 11:00",
+      "Hour": 11,
+      "kWh": 0.1878,
+      "Period": "MID-PEAK",
+      "Rate": 0.234,
+      "Cost": 0.044
+    },
+    {
+      "Timestamp": "2010-11-27 11:30",
+      "Hour": 11,
+      "kWh": 0.1878,
+      "Period": "MID-PEAK",
+      "Rate": 0.234,
+      "Cost": 0.044
+    },
+    {
+      "Timestamp": "2010-11-27 12:00",
+      "Hour": 12,
+      "kWh": 0.1891,
+      "Period": "MID-PEAK",
+      "Rate": 0.234,
+      "Cost": 0.0442
+    },
+    {
+      "Timestamp": "2010-11-27 12:30",
+      "Hour": 12,
+      "kWh": 0.1907,
+      "Period": "MID-PEAK",
+      "Rate": 0.234,
+      "Cost": 0.0446
+    },
+    {
+      "Timestamp": "2010-11-27 13:00",
+      "Hour": 13,
+      "kWh": 0.1042,
+      "Period": "PEAK",
+      "Rate": 0.248,
+      "Cost": 0.0258
+    },
+    {
+      "Timestamp": "2010-11-27 13:30",
+      "Hour": 13,
+      "kWh": 0.1011,
+      "Period": "PEAK",
+      "Rate": 0.248,
+      "Cost": 0.0251
+    },
+    {
+      "Timestamp": "2010-11-27 14:00",
+      "Hour": 14,
+      "kWh": 0.0963,
+      "Period": "PEAK",
+      "Rate": 0.248,
+      "Cost": 0.0239
+    },
+    {
+      "Timestamp": "2010-11-27 14:30",
+      "Hour": 14,
+      "kWh": 0.0915,
+      "Period": "PEAK",
+      "Rate": 0.248,
+      "Cost": 0.0227
+    },
+    {
+      "Timestamp": "2010-11-27 15:00",
+      "Hour": 15,
+      "kWh": 0.0878,
+      "Period": "PEAK",
+      "Rate": 0.248,
+      "Cost": 0.0218
+    },
+    {
+      "Timestamp": "2010-11-27 15:30",
+      "Hour": 15,
+      "kWh": 0.0863,
+      "Period": "PEAK",
+      "Rate": 0.248,
+      "Cost": 0.0214
+    },
+    {
+      "Timestamp": "2010-11-27 16:00",
+      "Hour": 16,
+      "kWh": 0.0872,
+      "Period": "PEAK",
+      "Rate": 0.248,
+      "Cost": 0.0216
+    },
+    {
+      "Timestamp": "2010-11-27 16:30",
+      "Hour": 16,
+      "kWh": 0.0911,
+      "Period": "PEAK",
+      "Rate": 0.248,
+      "Cost": 0.0226
+    },
+    {
+      "Timestamp": "2010-11-27 17:00",
+      "Hour": 17,
+      "kWh": 0.0988,
+      "Period": "PEAK",
+      "Rate": 0.248,
+      "Cost": 0.0245
+    },
+    {
+      "Timestamp": "2010-11-27 17:30",
+      "Hour": 17,
+      "kWh": 0.1099,
+      "Period": "PEAK",
+      "Rate": 0.248,
+      "Cost": 0.0273
+    },
+    {
+      "Timestamp": "2010-11-27 18:00",
+      "Hour": 18,
+      "kWh": 0.122,
+      "Period": "PEAK",
+      "Rate": 0.248,
+      "Cost": 0.0303
+    },
+    {
+      "Timestamp": "2010-11-27 18:30",
+      "Hour": 18,
+      "kWh": 0.1324,
+      "Period": "PEAK",
+      "Rate": 0.248,
+      "Cost": 0.0328
+    },
+    {
+      "Timestamp": "2010-11-27 19:00",
+      "Hour": 19,
+      "kWh": 0.1397,
+      "Period": "PEAK",
+      "Rate": 0.244,
+      "Cost": 0.0341
+    },
+    {
+      "Timestamp": "2010-11-27 19:30",
+      "Hour": 19,
+      "kWh": 0.1439,
+      "Period": "PEAK",
+      "Rate": 0.244,
+      "Cost": 0.0351
+    },
+    {
+      "Timestamp": "2010-11-27 20:00",
+      "Hour": 20,
+      "kWh": 0.1441,
+      "Period": "PEAK",
+      "Rate": 0.244,
+      "Cost": 0.0352
+    },
+    {
+      "Timestamp": "2010-11-27 20:30",
+      "Hour": 20,
+      "kWh": 0.1404,
+      "Period": "PEAK",
+      "Rate": 0.244,
+      "Cost": 0.0342
+    },
+    {
+      "Timestamp": "2010-11-27 21:00",
+      "Hour": 21,
+      "kWh": 0.1323,
+      "Period": "PEAK",
+      "Rate": 0.244,
+      "Cost": 0.0323
+    }
+  ]
+}

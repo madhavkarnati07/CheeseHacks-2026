@@ -1,0 +1,1163 @@
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WattSense — Energy Optimizer</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap');
+
+    :root {
+      --bg:         #080806;
+      --surface:    #0f0e0b;
+      --surface2:   #161510;
+      --border:     #2a2618;
+      --gold:       #d4a017;
+      --gold-bright:#f5c842;
+      --gold-dim:   #d4a01722;
+      --gold-mid:   #b8880f;
+      --amber:      #e8830a;
+      --amber-dim:  #e8830a22;
+      --teal:       #2ec4b6;
+      --teal-dim:   #2ec4b622;
+      --red:        #c0392b;
+      --red-dim:    #c0392b22;
+      --green:      #27ae60;
+      --green-dim:  #27ae6022;
+      --text:       #f5edd6;
+      --muted:      #7a6e52;
+      --mono:       'Space Mono', monospace;
+      --sans:       'Syne', sans-serif;
+    }
+
+    * { margin:0; padding:0; box-sizing:border-box; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content:'';
+      position:fixed; inset:0;
+      background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events:none; z-index:0; opacity:0.5;
+    }
+
+    /* ── HEADER ── */
+    header {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:16px 32px;
+      border-bottom:1px solid var(--border);
+      background:var(--surface);
+      position:relative; z-index:10;
+    }
+    .logo {
+      display:flex; align-items:center; gap:10px;
+      font-family:var(--sans); font-weight:800; font-size:1.25rem;
+      letter-spacing:-0.02em; color:var(--text);
+    }
+    .logo span { color:var(--gold-bright); }
+    .logo-w {
+      width:38px; height:38px;
+      filter:drop-shadow(0 0 6px rgba(212,160,23,0.8)) drop-shadow(0 0 16px rgba(212,160,23,0.35));
+      animation:boltPulse 2.8s ease-in-out infinite;
+    }
+    @keyframes boltPulse {
+      0%,100%{ filter:drop-shadow(0 0 5px rgba(212,160,23,0.7)) drop-shadow(0 0 14px rgba(212,160,23,0.3)); }
+      50%    { filter:drop-shadow(0 0 11px rgba(245,200,66,1))  drop-shadow(0 0 26px rgba(212,160,23,0.6)); }
+    }
+    .header-badge {
+      font-family:var(--mono); font-size:0.62rem; color:var(--gold);
+      border:1px solid var(--gold-mid); padding:3px 10px; border-radius:2px;
+      letter-spacing:0.1em; text-transform:uppercase; background:rgba(212,160,23,0.07);
+    }
+    .header-right { display:flex; align-items:center; gap:16px; }
+    .api-status {
+      display:flex; align-items:center; gap:7px;
+      font-family:var(--mono); font-size:0.66rem; color:var(--muted);
+    }
+    .status-dot {
+      width:7px; height:7px; border-radius:50%;
+      background:var(--muted); box-shadow:none;
+      transition:background 0.4s, box-shadow 0.4s;
+    }
+    .status-dot.live   { background:var(--teal);       box-shadow:0 0 6px var(--teal); animation:pulse 2s ease-in-out infinite; }
+    .status-dot.local  { background:var(--gold-bright); box-shadow:0 0 6px var(--gold); animation:pulse 2s ease-in-out infinite; }
+    .status-dot.error  { background:var(--red);         box-shadow:0 0 6px var(--red); }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.45} }
+
+    /* ── LAYOUT ── */
+    .app {
+      display:grid; grid-template-columns:320px 1fr;
+      min-height:calc(100vh - 57px);
+      position:relative; z-index:1;
+    }
+
+    /* ── LEFT PANEL ── */
+    .left-panel {
+      border-right:1px solid var(--border);
+      background:var(--surface);
+      display:flex; flex-direction:column;
+      padding:24px 20px 24px; gap:24px;
+      position: sticky;
+      top: 0;
+      height: calc(100vh - 57px);
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+    .left-spacer { flex: 1; min-height: 16px; }
+    .panel-section { display:flex; flex-direction:column; gap:10px; }
+    .section-label {
+      font-family:var(--mono); font-size:0.6rem; letter-spacing:0.14em;
+      text-transform:uppercase; color:var(--muted);
+      display:flex; align-items:center; gap:8px;
+    }
+    .section-label::after { content:''; flex:1; height:1px; background:var(--border); }
+
+    /* File upload */
+    .upload-zone {
+      border:1.5px dashed var(--border); border-radius:6px;
+      padding:18px; text-align:center; cursor:pointer;
+      transition:all 0.2s; position:relative; overflow:hidden;
+      background:var(--surface2);
+    }
+    .upload-zone:hover { border-color:var(--gold); background:var(--gold-dim); }
+    .upload-zone.has-file { border-color:var(--gold); border-style:solid; background:var(--gold-dim); }
+    .upload-zone input { position:absolute; inset:0; opacity:0; cursor:pointer; }
+    .upload-icon { font-size:1.5rem; margin-bottom:6px; display:block; }
+    .upload-text { font-size:0.78rem; color:var(--muted); line-height:1.5; }
+    .upload-text strong { display:block; color:var(--text); font-size:0.82rem; margin-bottom:2px; font-family:var(--mono); }
+    .upload-filename { font-family:var(--mono); font-size:0.7rem; color:var(--gold-bright); margin-top:5px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+    /* API toggle */
+    .api-row {
+      display:flex; align-items:center; justify-content:space-between;
+      background:var(--surface2); border:1px solid var(--border);
+      border-radius:6px; padding:10px 14px;
+    }
+    .api-row-label { font-family:var(--mono); font-size:0.68rem; color:var(--muted); }
+    .api-row-label strong { color:var(--text); display:block; margin-bottom:1px; }
+    .toggle-wrap { display:flex; align-items:center; gap:8px; }
+    .toggle {
+      position:relative; width:36px; height:20px; cursor:pointer;
+    }
+    .toggle input { opacity:0; width:0; height:0; }
+    .toggle-slider {
+      position:absolute; inset:0;
+      background:#2a2618; border-radius:20px;
+      transition:background 0.2s;
+    }
+    .toggle-slider::before {
+      content:''; position:absolute;
+      height:14px; width:14px; left:3px; bottom:3px;
+      background:var(--muted); border-radius:50%;
+      transition:transform 0.2s, background 0.2s;
+    }
+    .toggle input:checked + .toggle-slider { background:var(--teal-dim); border:1px solid var(--teal); }
+    .toggle input:checked + .toggle-slider::before { transform:translateX(16px); background:var(--teal); }
+    .toggle-txt { font-family:var(--mono); font-size:0.62rem; color:var(--muted); }
+
+    /* City buttons */
+    .city-grid { display:flex; flex-direction:column; gap:7px; }
+    .city-btn {
+      background:var(--surface2); border:1.5px solid var(--border);
+      border-radius:6px; padding:12px 14px; cursor:pointer;
+      transition:all 0.18s; display:flex; align-items:center;
+      justify-content:space-between; text-align:left;
+    }
+    .city-btn:hover { border-color:var(--gold); background:var(--gold-dim); }
+    .city-btn.active { border-color:var(--gold); background:var(--gold-dim); }
+    .city-name { font-weight:700; font-size:0.92rem; color:var(--text); }
+    .city-meta { font-family:var(--mono); font-size:0.6rem; color:var(--muted); margin-top:2px; }
+    .city-badge {
+      font-family:var(--mono); font-size:0.58rem; padding:2px 7px;
+      border-radius:2px; text-transform:uppercase; letter-spacing:0.08em;
+      background:var(--border); color:var(--muted);
+    }
+    .city-btn.active .city-badge { background:var(--gold); color:var(--bg); }
+
+    /* Stats row */
+    .stats-row { display:grid; grid-template-columns:1fr 1fr; gap:7px; }
+    .stat-card { background:var(--surface2); border:1px solid var(--border); border-radius:6px; padding:10px; }
+    .stat-label { font-family:var(--mono); font-size:0.58rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:3px; }
+    .stat-value { font-family:var(--mono); font-size:1.05rem; font-weight:700; color:var(--gold-bright); }
+    .stat-unit  { font-size:0.58rem; color:var(--muted); margin-left:1px; }
+
+    /* Household slider */
+    .slider-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:4px; }
+    .slider-val { font-family:var(--mono); font-size:0.82rem; font-weight:700; color:var(--gold-bright); }
+    input[type=range] {
+      -webkit-appearance:none; width:100%; height:4px;
+      background:var(--border); border-radius:2px; outline:none;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance:none; width:14px; height:14px; border-radius:50%;
+      background:var(--gold-bright); cursor:pointer;
+      box-shadow:0 0 6px rgba(245,200,66,0.5);
+    }
+    input[type=range]::-moz-range-thumb {
+      width:14px; height:14px; border-radius:50%;
+      background:var(--gold-bright); cursor:pointer; border:none;
+    }
+
+    /* CO2 panel */
+    .co2-panel {
+      display:none; background:var(--surface); border:1px solid var(--green);
+      border-radius:8px; padding:14px 20px;
+      flex-direction:row; gap:0; margin-top:-4px;
+    }
+    .co2-panel.visible { display:flex; }
+    .co2-item { flex:1; padding:0 16px; border-right:1px solid var(--border); }
+    .co2-item:first-child { padding-left:0; }
+    .co2-item:last-child  { border-right:none; }
+    .co2-label { font-family:var(--mono); font-size:0.58rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.1em; margin-bottom:3px; }
+    .co2-val   { font-family:var(--mono); font-size:1.2rem; font-weight:700; color:var(--green); }
+    .co2-sub   { font-family:var(--mono); font-size:0.6rem; color:var(--muted); margin-top:2px; }
+    .co2-icon  { font-size:1.1rem; margin-right:4px; }
+
+    /* Scale tabs */
+    .scale-tabs { display:flex; gap:6px; margin-bottom:10px; }
+    .scale-tab {
+      font-family:var(--mono); font-size:0.6rem; padding:3px 10px;
+      border-radius:3px; border:1px solid var(--border);
+      background:var(--surface2); color:var(--muted); cursor:pointer;
+      text-transform:uppercase; letter-spacing:0.08em; transition:all 0.15s;
+    }
+    .scale-tab.active { border-color:var(--gold); color:var(--gold-bright); background:var(--gold-dim); }
+
+    /* Run button */
+    .run-btn {
+      margin-top:0;
+      flex-shrink: 0;
+      background:linear-gradient(135deg, var(--gold-bright) 0%, var(--gold) 60%, var(--gold-mid) 100%);
+      color:#080806; border:none; border-radius:6px; padding:15px;
+      font-family:var(--sans); font-weight:800; font-size:0.92rem;
+      letter-spacing:0.04em; cursor:pointer; transition:all 0.2s;
+      display:flex; align-items:center; justify-content:center; gap:9px;
+      text-transform:uppercase; position:relative; overflow:hidden;
+      box-shadow:0 2px 12px rgba(212,160,23,0.22);
+    }
+    .run-btn::before {
+      content:''; position:absolute; inset:0;
+      background:linear-gradient(135deg, transparent 40%, rgba(255,255,255,0.18) 50%, transparent 60%);
+      transform:translateX(-100%); transition:transform 0.5s;
+    }
+    .run-btn:hover::before { transform:translateX(100%); }
+    .run-btn:hover { transform:translateY(-1px); box-shadow:0 6px 28px rgba(212,160,23,0.42); }
+    .run-btn:active { transform:translateY(0); }
+    .run-btn:disabled { opacity:0.4; cursor:not-allowed; transform:none; box-shadow:none; }
+
+    /* ── RIGHT PANEL ── */
+    .right-panel {
+      background:var(--bg); padding:24px 28px;
+      display:flex; flex-direction:column; gap:20px;
+    }
+    .empty-state {
+      flex:1; display:flex; flex-direction:column;
+      align-items:center; justify-content:center; gap:14px; opacity:0.4;
+    }
+    .empty-icon { font-size:2.8rem; opacity:0.5; }
+    .empty-text { font-family:var(--mono); font-size:0.78rem; color:var(--muted); text-align:center; line-height:1.7; }
+
+    /* Results strip */
+    .results-strip {
+      display:none; background:var(--surface); border:1px solid var(--border);
+      border-radius:8px; padding:14px 20px; flex-direction:row; gap:0;
+    }
+    .results-strip.visible { display:flex; }
+    .result-item { flex:1; padding:0 16px; border-right:1px solid var(--border); }
+    .result-item:first-child { padding-left:0; }
+    .result-item:last-child  { border-right:none; }
+    .result-label { font-family:var(--mono); font-size:0.58rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.1em; margin-bottom:3px; }
+    .result-val   { font-family:var(--mono); font-size:1.25rem; font-weight:700; }
+    .result-val.green { color:var(--teal); }
+    .result-val.amber { color:var(--amber); }
+    .result-val.red   { color:var(--red); }
+    .result-change { font-family:var(--mono); font-size:0.62rem; color:var(--gold); margin-top:2px; }
+
+    /* Source tag */
+    .data-source-tag {
+      display:none; font-family:var(--mono); font-size:0.6rem;
+      padding:3px 10px; border-radius:2px; letter-spacing:0.08em;
+      text-transform:uppercase; align-self:flex-start;
+    }
+    .data-source-tag.visible { display:block; }
+    .data-source-tag.api   { background:var(--teal-dim); color:var(--teal); border:1px solid var(--teal); }
+    .data-source-tag.local { background:var(--gold-dim); color:var(--gold); border:1px solid var(--gold-mid); }
+    .data-source-tag.demo  { background:var(--amber-dim); color:var(--amber); border:1px solid var(--amber); }
+
+    /* Charts */
+    .charts-area { display:none; flex-direction:column; gap:18px; }
+    .charts-area.visible { display:flex; }
+    .chart-card {
+      background:var(--surface); border:1px solid var(--border);
+      border-radius:8px; padding:18px 22px;
+      position:relative; overflow:hidden;
+    }
+    .chart-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+    .chart-title  { font-weight:700; font-size:0.92rem; color:var(--text); }
+    .chart-subtitle { font-family:var(--mono); font-size:0.62rem; color:var(--muted); margin-top:2px; }
+    .chart-legend { display:flex; gap:14px; align-items:center; }
+    .legend-item  { display:flex; align-items:center; gap:5px; font-family:var(--mono); font-size:0.62rem; color:var(--muted); }
+    .legend-dot   { width:8px; height:8px; border-radius:50%; }
+    .legend-line  { width:18px; height:2px; border-radius:1px; }
+    canvas { display:block; }
+    .chart-wrap { position:relative; width:100%; }
+    .chart-wrap-sm  { height: 160px; }
+    .chart-wrap-md  { height: 200px; }
+    #priceChart, #consumptionChart, #co2Chart { width:100% !important; height:100% !important; }
+
+    /* Loading */
+    .loading-overlay {
+      display:none; position:absolute; inset:0;
+      background:rgba(8,8,6,0.88); align-items:center; justify-content:center;
+      flex-direction:column; gap:10px; border-radius:8px; z-index:10;
+    }
+    .loading-overlay.show { display:flex; }
+    .spinner {
+      width:26px; height:26px; border:2px solid var(--border);
+      border-top-color:var(--gold); border-radius:50%;
+      animation:spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    .loading-text { font-family:var(--mono); font-size:0.68rem; color:var(--muted); }
+
+    @keyframes fadeSlideIn {
+      from { opacity:0; transform:translateY(10px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+    .animate-in { animation:fadeSlideIn 0.4s ease forwards; }
+  </style>
+  </head>
+  <body>
+
+  <header>
+    <div class="logo">
+      <!-- W made of two lightning bolts -->
+      <svg class="logo-w" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="boltGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%"   stop-color="#f5c842"/>
+            <stop offset="100%" stop-color="#d4a017"/>
+          </linearGradient>
+        </defs>
+        <!-- Left bolt -->
+        <polygon points="5,3 13,3 8,17 13,17 6,35 14,20 9,20 16,3" fill="url(#boltGrad)"/>
+        <!-- Right bolt -->
+        <polygon points="19,3 27,3 22,17 27,17 20,35 28,20 23,20 30,3" fill="url(#boltGrad)"/>
+      </svg>
+      Watt<span>Sense</span>
+    </div>
+    <div class="header-badge">LSTM Energy Optimizer</div>
+    <div class="header-right">
+      <div class="api-status">
+        <div class="status-dot" id="apiDot"></div>
+        <span id="apiStatusText">OFFLINE</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="app">
+    <!-- ── LEFT PANEL ── -->
+    <div class="left-panel">
+
+      <!-- 01 Load Data -->
+      <div class="panel-section">
+        <div class="section-label">01 — Load Data</div>
+        <div class="upload-zone" id="uploadZone">
+          <input type="file" id="fileInput" accept=".csv,.txt">
+          <span class="upload-icon">📂</span>
+          <div class="upload-text">
+            <strong>Upload CSV File</strong>
+            processed_data.csv or smart_meter .csv
+          </div>
+          <div class="upload-filename" id="fileName">No file selected — demo data will be used</div>
+        </div>
+
+        <!-- API toggle -->
+        <div class="api-row">
+          <div class="api-row-label">
+            <strong>Live API Mode</strong>
+            Fetch from localhost:8000
+          </div>
+          <div class="toggle-wrap">
+            <label class="toggle">
+              <input type="checkbox" id="apiToggle" onchange="onApiToggle()">
+              <span class="toggle-slider"></span>
+            </label>
+            <span class="toggle-txt" id="toggleTxt">OFF</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 02 City -->
+      <div class="panel-section">
+        <div class="section-label">02 — Select City</div>
+        <div class="city-grid">
+          <button class="city-btn active" data-city="madison" onclick="selectCity('madison',this)">
+            <div>
+              <div class="city-name">Madison</div>
+              <div class="city-meta">MG&amp;E · Rg-2A Time-of-Use</div>
+            </div>
+            <span class="city-badge">WI</span>
+          </button>
+          <button class="city-btn" data-city="milwaukee" onclick="selectCity('milwaukee',this)">
+            <div>
+              <div class="city-name">Milwaukee</div>
+              <div class="city-meta">We Energies · Peak/Off-Peak</div>
+            </div>
+            <span class="city-badge">WI</span>
+          </button>
+          <button class="city-btn" data-city="greenbay" onclick="selectCity('greenbay',this)">
+            <div>
+              <div class="city-name">Green Bay</div>
+              <div class="city-meta">WPS · 3-Tier Pricing</div>
+            </div>
+            <span class="city-badge">WI</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 03 Rate summary -->
+      <div class="panel-section">
+        <div class="section-label">03 — Rate Summary</div>
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="stat-label">Off-Peak</div>
+            <div class="stat-value" id="statOffPeak">—<span class="stat-unit">$/kWh</span></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Peak Rate</div>
+            <div class="stat-value" id="statPeak">—<span class="stat-unit">$/kWh</span></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Peak Hours</div>
+            <div class="stat-value" id="statHours" style="font-size:0.76rem">—</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Shift %</div>
+            <div class="stat-value" id="statShift">—<span class="stat-unit">%</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 04 Scale -->
+      <div class="panel-section">
+        <div class="section-label">04 — Scale to Households</div>
+        <div class="slider-row">
+          <span style="font-family:var(--mono);font-size:0.68rem;color:var(--muted)">Households</span>
+          <span class="slider-val" id="householdVal">1</span>
+        </div>
+        <input type="range" id="householdSlider" min="1" max="50000" value="1" step="1"
+              oninput="onHouseholdChange(this.value)">
+        <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:0.58rem;color:var(--muted);margin-top:3px;">
+          <span>1</span><span>25</span><span>50k</span>
+        </div>
+      </div>
+
+      <div class="left-spacer"></div>
+      <button class="run-btn" id="runBtn" onclick="runAnalysis()">
+        <span>⚡</span> Run Optimizer
+      </button>
+    </div>
+
+    <!-- ── RIGHT PANEL ── -->
+    <div class="right-panel">
+
+      <div class="empty-state" id="emptyState">
+        <div class="empty-icon">📊</div>
+        <div class="empty-text">
+          Upload your CSV (or enable Live API),<br>
+          select a city, then hit <strong style="color:var(--gold-bright)">Run Optimizer</strong>
+        </div>
+      </div>
+
+      <!-- Scale tabs -->
+      <div class="scale-tabs" id="scaleTabs" style="display:none">
+        <button class="scale-tab active" onclick="setScale('daily',this)">Daily</button>
+        <button class="scale-tab" onclick="setScale('monthly',this)">Monthly</button>
+        <button class="scale-tab" onclick="setScale('yearly',this)">Yearly</button>
+      </div>
+
+      <!-- Results strip -->
+      <div class="results-strip" id="resultsStrip">
+        <div class="result-item">
+          <div class="result-label" id="labelCurrent">Daily Cost (original)</div>
+          <div class="result-val amber" id="costCurrent">—</div>
+        </div>
+        <div class="result-item">
+          <div class="result-label" id="labelOptimized">Daily Cost (optimized)</div>
+          <div class="result-val green" id="costOptimized">—</div>
+        </div>
+        <div class="result-item">
+          <div class="result-label" id="labelSavings">Est. Savings</div>
+          <div class="result-val green" id="costSavings">—</div>
+          <div class="result-change" id="savingsPct">—</div>
+        </div>
+        <div class="result-item">
+          <div class="result-label">Households</div>
+          <div class="result-val" style="color:var(--gold-bright)" id="householdsDisplay">1</div>
+          <div class="result-change" id="perHouseholdSavings">—</div>
+        </div>
+        <div class="result-item">
+          <div class="result-label">Peak Exposure</div>
+          <div class="result-val red" id="peakExposure">—</div>
+        </div>
+      </div>
+
+      <!-- CO2 panel -->
+      <div class="co2-panel" id="co2Panel">
+        <div class="co2-item">
+          <div class="co2-label">🌿 CO₂ Avoided</div>
+          <div class="co2-val" id="co2Daily">—</div>
+          <div class="co2-sub" id="co2DailySub">kg per day · all households</div>
+        </div>
+        <div class="co2-item">
+          <div class="co2-label">📅 Monthly CO₂</div>
+          <div class="co2-val" id="co2Monthly">—</div>
+          <div class="co2-sub">kg/month · all households</div>
+        </div>
+        <div class="co2-item">
+          <div class="co2-label">🌍 Annual CO₂</div>
+          <div class="co2-val" id="co2Yearly">—</div>
+          <div class="co2-sub">tonnes/year · all households</div>
+        </div>
+        <div class="co2-item">
+          <div class="co2-label">🌲 Equiv. Trees</div>
+          <div class="co2-val" id="co2Trees">—</div>
+          <div class="co2-sub">trees absorbing annual CO₂</div>
+        </div>
+      </div>
+
+      <!-- Data source tag -->
+      <div class="data-source-tag" id="dataSourceTag"></div>
+
+      <!-- Charts -->
+      <div class="charts-area" id="chartsArea">
+
+        <div class="chart-card">
+          <div class="loading-overlay" id="loadingPrice">
+            <div class="spinner"></div>
+            <div class="loading-text">Loading rates…</div>
+          </div>
+          <div class="chart-header">
+            <div>
+              <div class="chart-title" id="priceChartTitle">Electricity Price by Hour</div>
+              <div class="chart-subtitle" id="priceChartSub">Time-of-use rate structure · Weekdays 2026</div>
+            </div>
+            <div class="chart-legend">
+              <div class="legend-item"><div class="legend-dot" style="background:var(--red)"></div>Peak</div>
+              <div class="legend-item"><div class="legend-dot" style="background:var(--amber)"></div>Mid</div>
+              <div class="legend-item"><div class="legend-dot" style="background:var(--gold)"></div>Off-Peak</div>
+              <div class="legend-item"><div class="legend-line" style="background:var(--teal)"></div>Flat rate</div>
+            </div>
+          </div>
+          <div class="chart-wrap chart-wrap-sm"><canvas id="priceChart"></canvas></div>
+        </div>
+
+        <div class="chart-card">
+          <div class="loading-overlay" id="loadingConsumption"></div>
+          <div class="chart-header">
+            <div>
+              <div class="chart-title">24-Hour Consumption — Actual vs Optimized</div>
+              <div class="chart-subtitle" id="consumptionSub">Hourly averages · LSTM forecast · City-aware shift</div>
+            </div>
+            <div class="chart-legend">
+              <div class="legend-item"><div class="legend-dot" style="background:var(--amber)"></div>Actual</div>
+              <div class="legend-item"><div class="legend-dot" style="background:var(--teal)"></div>Optimized</div>
+            </div>
+          </div>
+          <div class="chart-wrap chart-wrap-md"><canvas id="consumptionChart"></canvas></div>
+        </div>
+
+
+
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <script>
+  // ═══════════════════════════════════════════════════════════════════
+  //  CITY CONFIG  — mirrors prediction.py CITY_CONFIG exactly
+  // ═══════════════════════════════════════════════════════════════════
+  const CITIES = {
+    madison: {
+      label:      'Madison (MG&E Rg-2A)',
+      flatRate:   0.1885,
+      shiftFrac:  0.45,
+      peakHours:  [13,14,15,16,17,18,19,20,21],
+      offPeakHours:[0,1,2,3,4,5,6,7,8,9,22,23],
+      peakDisplay: '1pm–9pm',
+      prices: [
+        0.139,0.139,0.139,0.139,0.139,0.139,0.139,0.139,0.139,0.139, // 0-9
+        0.234,0.234,0.234,                                              // 10-12
+        0.248,0.248,0.248,0.248,0.248,0.248,                           // 13-18
+        0.244,0.244,0.244,                                              // 19-21
+        0.139,0.139,                                                    // 22-23
+      ],
+    },
+    milwaukee: {
+      label:      'Milwaukee (We Energies)',
+      flatRate:   0.1934,
+      shiftFrac:  0.55,
+      peakHours:  [7,8,9,10,11,12,13,14,15,16,17,18],
+      offPeakHours:[0,1,2,3,4,5,6,19,20,21,22,23],
+      peakDisplay: '7am–7pm',
+      prices: [
+        0.104,0.104,0.104,0.104,0.104,0.104,0.104,  // 0-6
+        0.304,0.304,0.304,0.304,0.304,0.304,0.304,  // 7-13
+        0.304,0.304,0.304,0.304,0.304,               // 14-18
+        0.104,0.104,0.104,0.104,0.104,               // 19-23
+      ],
+    },
+    greenbay: {
+      label:      'Green Bay (WPS 3-Tier)',
+      flatRate:   0.148,
+      shiftFrac:  0.65,
+      peakHours:  [16,17,18,19],
+      offPeakHours:[0,1,2,3,4,5,6,22,23],
+      peakDisplay: '4pm–8pm',
+      prices: [
+        0.081,0.081,0.081,0.081,0.081,0.081,0.081,  // 0-6
+        0.144,0.144,0.144,0.144,0.144,0.144,0.144,  // 7-13
+        0.144,0.144,                                  // 14-15
+        0.325,0.325,0.325,0.325,                      // 16-19
+        0.144,0.144,                                  // 20-21
+        0.081,0.081,                                  // 22-23
+      ],
+    },
+  };
+
+  const HOURS = Array.from({length:24}, (_,i) => `${i}:00`);
+
+  // ═══════════════════════════════════════════════════════════════════
+  //  STATE
+  // ═══════════════════════════════════════════════════════════════════
+  let selectedCity  = 'madison';
+  let csvData       = null;        // [{Hour, Electricity_Consumed}, …]
+  let apiData       = null;        // parsed predictions_summary.json from API
+  let useApi        = false;
+  let priceChart    = null;
+  let consChart     = null;
+  let co2Chart      = null;
+  let numHouseholds = 1;
+  let currentScale  = 'daily';
+  let lastActual    = null;
+  let lastOptimized = null;
+
+  const CO2_PER_KWH = 0.86;  // kg CO₂ per kWh
+  const TREE_KG_CO2_PER_YEAR = 21.77; // avg tree absorbs ~21.77 kg CO₂/year
+
+  // ═══════════════════════════════════════════════════════════════════
+  //  CITY SELECTION
+  // ═══════════════════════════════════════════════════════════════════
+  function selectCity(city, btn) {
+    selectedCity = city;
+    document.querySelectorAll('.city-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    updateStats(city);
+    if (priceChart) updatePriceChart(city);
+    // If charts are already visible, re-run optimizer with new city rates
+    if (consChart && (csvData || apiData)) rebuildConsumption();
+  }
+
+  // ── Household slider ──
+  function onHouseholdChange(val) {
+    numHouseholds = parseInt(val);
+    const display = numHouseholds >= 1000
+      ? (numHouseholds/1000).toFixed(numHouseholds % 1000 === 0 ? 0 : 1) + 'k'
+      : numHouseholds;
+    document.getElementById('householdVal').textContent = display;
+    if (lastActual) updateResultsDisplay();
+  }
+
+  // ── Scale tabs ──
+  function setScale(scale, btn) {
+    currentScale = scale;
+    document.querySelectorAll('.scale-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    if (lastActual) updateResultsDisplay();
+  }
+
+  function updateStats(city) {
+    const c = CITIES[city];
+    const offMin = Math.min(...c.prices).toFixed(3);
+    const peakMax = Math.max(...c.prices).toFixed(3);
+    document.getElementById('statOffPeak').innerHTML = `${offMin}<span class="stat-unit">$/kWh</span>`;
+    document.getElementById('statPeak').innerHTML    = `${peakMax}<span class="stat-unit">$/kWh</span>`;
+    document.getElementById('statHours').textContent = c.peakDisplay;
+    document.getElementById('statShift').innerHTML   = `${(c.shiftFrac*100).toFixed(0)}<span class="stat-unit">%</span>`;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════
+  //  FILE UPLOAD
+  // ═══════════════════════════════════════════════════════════════════
+  document.getElementById('fileInput').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    document.getElementById('fileName').textContent = file.name;
+    document.getElementById('uploadZone').classList.add('has-file');
+
+    const reader = new FileReader();
+    reader.onload = function(evt) {
+      const firstLine = evt.target.result.split('\n')[0];
+      const delim = firstLine.includes(';') ? ';' : firstLine.includes('\t') ? '\t' : ',';
+
+      Papa.parse(file, {
+        header:true, delimiter:delim, dynamicTyping:true, skipEmptyLines:true,
+        complete(results) {
+          const raw  = results.data;
+          const cols = Object.keys(raw[0] || {});
+          csvData = raw.map(row => {
+            if (row.Time && row.Global_active_power != null) {
+              return { Hour: parseInt((row.Time||'00:00').split(':')[0]), Electricity_Consumed: parseFloat(row.Global_active_power)||0 };
+            }
+            if (row.Electricity_Consumed != null) {
+              const hr = row.Hour != null ? row.Hour : parseInt((row.Timestamp||'').split(' ')[1]||'0');
+              return { Hour: hr, Electricity_Consumed: parseFloat(row.Electricity_Consumed)||0 };
+            }
+            const numCols = cols.filter(c => !isNaN(parseFloat(row[c])));
+            const timeLike = cols.find(c => /time|hour|date/i.test(c));
+            return { Hour: timeLike ? parseInt(row[timeLike])||0 : 0, Electricity_Consumed: numCols.length ? parseFloat(row[numCols[0]])||0 : 0 };
+          }).filter(r => r.Hour >= 0 && r.Hour < 24);
+
+          console.log(`Parsed ${csvData.length} rows  delimiter="${delim}"`);
+        }
+      });
+    };
+    reader.readAsText(file);
+  });
+
+  // ═══════════════════════════════════════════════════════════════════
+  //  API TOGGLE & PROBE
+  // ═══════════════════════════════════════════════════════════════════
+  function onApiToggle() {
+    useApi = document.getElementById('apiToggle').checked;
+    document.getElementById('toggleTxt').textContent = useApi ? 'ON' : 'OFF';
+    if (useApi) probeApi();
+    else setApiStatus('offline');
+  }
+
+  function setApiStatus(state) {
+    const dot  = document.getElementById('apiDot');
+    const txt  = document.getElementById('apiStatusText');
+    dot.className = 'status-dot ' + state;
+    if (state === 'live')   txt.textContent = 'API LIVE';
+    else if (state === 'local') txt.textContent = 'CSV LOADED';
+    else if (state === 'error') txt.textContent = 'API ERROR';
+    else                        txt.textContent = 'OFFLINE';
+  }
+
+  async function probeApi() {
+    try {
+      const r = await fetch('http://localhost:8000/forecast', { signal: AbortSignal.timeout(2000) });
+      if (r.ok) setApiStatus('live');
+      else      setApiStatus('error');
+    } catch {
+      setApiStatus('error');
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════════
+  //  FETCH FROM API  (predictions_summary.json endpoint)
+  // ═══════════════════════════════════════════════════════════════════
+  async function fetchApiData(city) {
+    try {
+      // Try the summary endpoint first (new)
+      let r = await fetch(`http://localhost:8000/summary?city=${city}`, { signal: AbortSignal.timeout(3000) });
+      if (r.ok) {
+        apiData = await r.json();
+        setApiStatus('live');
+        return true;
+      }
+      // Fallback: legacy /forecast endpoint → optimized_schedule.csv data
+      r = await fetch('http://localhost:8000/forecast', { signal: AbortSignal.timeout(3000) });
+      if (r.ok) {
+        const slots = await r.json();
+        // Build a compatible summary from the raw slots
+        apiData = buildSummaryFromSlots(slots, city);
+        setApiStatus('live');
+        return true;
+      }
+    } catch (err) {
+      console.warn('API fetch failed:', err.message);
+      setApiStatus('error');
+    }
+    return false;
+  }
+
+  function buildSummaryFromSlots(slots, city) {
+    // slots = [{Timestamp, Hour, kWh, Period, Rate, Cost}, …]  (optimized_schedule.csv)
+    const c   = CITIES[city];
+    const hourlyOpt = Array(24).fill(0);
+    const hourlyCount = Array(24).fill(0);
+    slots.forEach(s => {
+      hourlyOpt[s.Hour] += s.kWh || 0;
+      hourlyCount[s.Hour]++;
+    });
+    const optAvg = hourlyOpt.map((v,i) => hourlyCount[i] > 0 ? v/hourlyCount[i] : 0);
+    // We don't have "actual" from the API, so use demo as actual
+    const actual = getDemoHourly();
+    const optCost  = optAvg.reduce((s,v,i) => s + v*c.prices[i], 0);
+    const origCost = actual.reduce((s,v,i) => s + v*c.prices[i], 0);
+    return {
+      city, city_label: c.label, flat_rate: c.flatRate, prices_by_hour: c.prices,
+      shift_fraction: c.shiftFrac,
+      original_cost: origCost, optimized_cost: optCost,
+      savings: origCost - optCost,
+      savings_pct: ((origCost - optCost)/origCost*100).toFixed(1),
+      peak_exposure_pct: calcPeakExposure(actual, c),
+      hourly_actual: actual, hourly_optimized: optAvg,
+      total_kwh: actual.reduce((a,b)=>a+b,0),
+    };
+  }
+
+  // ═══════════════════════════════════════════════════════════════════
+  //  OPTIMIZER  (city-aware, proportional weight distribution)
+  // ═══════════════════════════════════════════════════════════════════
+  function runOptimizer(actual, city) {
+    const c         = CITIES[city];
+    const optimized = [...actual];
+    const peakIdx   = c.peakHours.filter(h => h < 24);
+    const offIdx    = c.offPeakHours.filter(h => h < 24);
+
+    const totalToShift = peakIdx.reduce((s,h) => s + actual[h], 0) * c.shiftFrac;
+
+    // Reduce peak hours
+    peakIdx.forEach(h => { optimized[h] = actual[h] * (1 - c.shiftFrac); });
+
+    // Distribute shifted load proportionally to existing off-peak usage
+    const offBase = offIdx.map(h => optimized[h]);
+    const offSum  = offBase.reduce((a,b) => a+b, 0);
+    const weights = offSum > 0 ? offBase.map(v => v/offSum) : offBase.map(() => 1/offIdx.length);
+    offIdx.forEach((h, i) => { optimized[h] += totalToShift * weights[i]; });
+
+    return optimized;
+  }
+
+  function calcPeakExposure(actual, cityObj) {
+    const c  = CITIES[typeof cityObj === 'string' ? cityObj : selectedCity] || cityObj;
+    const ph = c.peakHours || [];
+    const peakKwh = ph.reduce((s,h) => s + (actual[h]||0), 0);
+    const total   = actual.reduce((a,b)=>a+b,0);
+    return total > 0 ? ((peakKwh/total)*100).toFixed(0) : 0;
+  }
+
+  function computeAndShowResults(actual, optimized, city) {
+    lastActual    = actual;
+    lastOptimized = optimized;
+    updateResultsDisplay();
+  }
+
+  function updateResultsDisplay() {
+    const actual    = lastActual;
+    const optimized = lastOptimized;
+    const city      = selectedCity;
+    const c         = CITIES[city];
+    const H         = numHouseholds;
+
+    // Per-household daily figures
+    const origDailyCost = actual.reduce((s,v,i) => s + v*c.prices[i], 0);
+    const optDailyCost  = optimized.reduce((s,v,i) => s + v*c.prices[i], 0);
+    const dailySavingsPer = origDailyCost - optDailyCost;
+    const pct = origDailyCost > 0 ? (dailySavingsPer/origDailyCost*100).toFixed(1) : 0;
+
+    // Scale multipliers
+    const scaleMap   = { daily:1, monthly:30, yearly:365 };
+    const scaleMult  = scaleMap[currentScale];
+    const scaleLabel = { daily:'Daily', monthly:'Monthly (30d)', yearly:'Annual' }[currentScale];
+
+    // Scaled totals across all households
+    const totalOrig  = origDailyCost * scaleMult * H;
+    const totalOpt   = optDailyCost  * scaleMult * H;
+    const totalSave  = dailySavingsPer * scaleMult * H;
+
+    // CO2: kWh shifted away from peak × 0.86
+    const kwhShiftedPerHousehold = actual.reduce((s,v,i) => s + Math.max(0, v - optimized[i]), 0);
+    const co2DailyKg  = kwhShiftedPerHousehold * CO2_PER_KWH * H;
+    const co2MonthKg  = co2DailyKg * 30;
+    const co2YearTon  = co2DailyKg * 365 / 1000;
+    const treesNeeded = Math.round(co2YearTon * 1000 / TREE_KG_CO2_PER_YEAR);
+
+    // Peak exposure
+    const peakPct = calcPeakExposure(actual, c);
+
+    // Helper to format currency
+    const fmt = n => n >= 1e6 ? `$${(n/1e6).toFixed(2)}M`
+                  : n >= 1e3 ? `$${(n/1e3).toFixed(1)}k`
+                  : `$${n.toFixed(2)}`;
+
+    // Update results strip
+    document.getElementById('labelCurrent').textContent   = `${scaleLabel} Cost (original)`;
+    document.getElementById('labelOptimized').textContent = `${scaleLabel} Cost (optimized)`;
+    document.getElementById('labelSavings').textContent   = `${scaleLabel} Savings`;
+    document.getElementById('costCurrent').textContent    = fmt(totalOrig);
+    document.getElementById('costOptimized').textContent  = fmt(totalOpt);
+    document.getElementById('costSavings').textContent    = fmt(totalSave);
+    document.getElementById('savingsPct').textContent     = `▼ ${pct}% per household`;
+    document.getElementById('householdsDisplay').textContent = H >= 1000
+      ? `${(H/1000).toFixed(H%1000===0?0:1)}k`
+      : H;
+    document.getElementById('perHouseholdSavings').textContent =
+      `$${(dailySavingsPer * scaleMult).toFixed(2)} / household`;
+    document.getElementById('peakExposure').textContent = `${peakPct}%`;
+
+    // Update CO2 panel — scale-aware
+    const fmtKg  = n => n >= 1000 ? `${(n/1000).toFixed(2)} t` : `${n.toFixed(1)} kg`;
+    const hLabel = H >= 1000 ? (H/1000).toFixed(1)+'k' : H;
+
+    // Primary CO2 figure scales with current tab selection
+    const co2PrimaryKg = co2DailyKg * scaleMult;
+    const co2PrimaryLabel = { daily: 'kg/day', monthly: 'kg/month', yearly: 'kg/year' }[currentScale];
+    document.getElementById('co2Daily').textContent    = fmtKg(co2PrimaryKg);
+    document.getElementById('co2DailySub').textContent = `${co2PrimaryLabel} · ${hLabel} household${H > 1 ? 's' : ''}`;
+
+    // Monthly and yearly always show absolute scaled values
+    document.getElementById('co2Monthly').textContent = fmtKg(co2MonthKg);
+    document.getElementById('co2Yearly').textContent  = `${co2YearTon.toFixed(2)} t`;
+    document.getElementById('co2Trees').textContent   = treesNeeded >= 1000
+      ? `${(treesNeeded/1000).toFixed(1)}k`
+      : treesNeeded;
+
+    document.getElementById('resultsStrip').classList.add('visible');
+    document.getElementById('co2Panel').classList.add('visible');
+    document.getElementById('scaleTabs').style.display = 'flex';
+
+    // Update CO2 chart subtitle
+    document.getElementById('co2ChartSub').textContent =
+      `0.86 kg CO₂ per kWh shifted · ${H >= 1000 ? (H/1000).toFixed(1)+'k' : H} household${H > 1 ? 's' : ''}`;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════
+  //  HOURLY AGGREGATION FROM RAW CSV
+  // ═══════════════════════════════════════════════════════════════════
+  function aggregateCsvToHourly(rows) {
+    const sums   = Array(24).fill(0);
+    const counts = Array(24).fill(0);
+    rows.forEach(r => {
+      const h = r.Hour;
+      if (h >= 0 && h < 24) { sums[h] += r.Electricity_Consumed||0; counts[h]++; }
+    });
+    return sums.map((s,i) => counts[i] > 0 ? s/counts[i] : 0);
+  }
+
+  // Demo fallback data (48 half-hour slots → averaged per hour)
+  function getDemoHourly() {
+    const slots = [
+      0.458,0.352,0.483,0.629,0.336,0.336,0.638,0.503,0.297,0.465,
+      0.298,0.297,0.415,0.056,0.088,0.281,0.206,0.427,0.224,0.140,
+      0.619,0.337,0.386,0.138,0.284,0.393,0.183,0.438,0.275,0.326,
+      0.275,0.684,0.373,0.199,0.512,0.172,0.410,0.048,0.154,0.408,
+      0.498,0.404,0.356,0.325,0.129,0.255,0.298,0.551,
+    ];
+    return Array.from({length:24}, (_,h) => (slots[h*2] + slots[h*2+1]) / 2);
+  }
+
+  // ═══════════════════════════════════════════════════════════════════
+  //  CHARTS
+  // ═══════════════════════════════════════════════════════════════════
+  const CHART_OPTS_BASE = {
+    responsive:true,
+    maintainAspectRatio: false,
+    plugins:{
+      legend:{ display:false },
+      tooltip:{
+        backgroundColor:'#161510', borderColor:'#2a2618', borderWidth:1,
+        titleColor:'#7a6e52', bodyColor:'#f5edd6',
+        titleFont:{ family:'Space Mono', size:10 },
+        bodyFont:{ family:'Space Mono', size:11 },
+      },
+    },
+    scales:{
+      x:{ grid:{ color:'#2a2618', lineWidth:0.5 }, ticks:{ color:'#7a6e52', font:{family:'Space Mono',size:10}, maxRotation:0 } },
+      y:{ grid:{ color:'#2a2618', lineWidth:0.5 }, ticks:{ color:'#7a6e52', font:{family:'Space Mono',size:10} }, min:0 },
+    },
+  };
+
+  function barColor(price, prices) {
+    const max = Math.max(...prices), min = Math.min(...prices);
+    const mid = (max + min) / 2 + (max - min) * 0.15;
+    if (price >= max * 0.9)    return 'rgba(192,57,43,0.85)';
+    if (price >= mid)          return 'rgba(232,131,10,0.82)';
+    return                            'rgba(212,160,23,0.78)';
+  }
+
+  function buildPriceChart(city) {
+    const c   = CITIES[city];
+    const ctx = document.getElementById('priceChart').getContext('2d');
+    const bc  = c.prices.map(p => barColor(p, c.prices));
+
+    if (priceChart) priceChart.destroy();
+    priceChart = new Chart(ctx, {
+      type:'bar',
+      data:{
+        labels: HOURS,
+        datasets:[
+          { label:'$/kWh', data:c.prices, backgroundColor:bc, borderWidth:0, borderRadius:3 },
+          { label:`Flat $${c.flatRate}`, data:Array(24).fill(c.flatRate), type:'line',
+            borderColor:'#2ec4b6', borderDash:[6,4], borderWidth:2, pointRadius:0, tension:0, fill:false },
+        ]
+      },
+      options:{
+        ...CHART_OPTS_BASE,
+        animation:{ duration:600, easing:'easeOutQuart' },
+        plugins:{
+          ...CHART_OPTS_BASE.plugins,
+          tooltip:{ ...CHART_OPTS_BASE.plugins.tooltip,
+            callbacks:{
+              title: ctx => `Hour ${ctx[0].label}`,
+              label: ctx => ctx.datasetIndex === 0
+                ? ` $${ctx.raw.toFixed(4)}/kWh`
+                : ` Flat: $${ctx.raw.toFixed(4)}/kWh`,
+            }
+          }
+        },
+        scales:{
+          ...CHART_OPTS_BASE.scales,
+          y:{ ...CHART_OPTS_BASE.scales.y, ticks:{ ...CHART_OPTS_BASE.scales.y.ticks, callback: v=>`$${v.toFixed(2)}` }, suggestedMax:0.38 }
+        }
+      }
+    });
+
+    document.getElementById('priceChartTitle').textContent = `${CITIES[city].label} — Price by Hour`;
+    document.getElementById('priceChartSub').textContent   = `Peak: ${c.peakDisplay}  ·  Shift: ${(c.shiftFrac*100).toFixed(0)}%  ·  Flat: $${c.flatRate}/kWh`;
+  }
+
+  function updatePriceChart(city) {
+    buildPriceChart(city);
+  }
+
+  function buildConsumptionChart(actual, optimized) {
+    const ctx = document.getElementById('consumptionChart').getContext('2d');
+    if (consChart) consChart.destroy();
+
+    consChart = new Chart(ctx, {
+      type:'line',
+      data:{
+        labels: HOURS,
+        datasets:[
+          { label:'Actual', data:actual,
+            borderColor:'#e8830a', backgroundColor:'rgba(232,131,10,0.08)',
+            borderWidth:2, pointRadius:3, pointBackgroundColor:'#e8830a',
+            fill:true, tension:0.35 },
+          { label:'Optimized', data:Array(24).fill(null),
+            borderColor:'#2ec4b6', backgroundColor:'rgba(46,196,182,0.08)',
+            borderWidth:2.5, pointRadius:3, pointBackgroundColor:'#2ec4b6',
+            fill:true, tension:0.35 },
+        ]
+      },
+      options:{
+        ...CHART_OPTS_BASE,
+        animation:{ duration:800, easing:'easeOutQuart' },
+        plugins:{
+          ...CHART_OPTS_BASE.plugins,
+          tooltip:{ ...CHART_OPTS_BASE.plugins.tooltip,
+            callbacks:{
+              title: ctx => `Hour ${ctx[0].label}`,
+              label: ctx => ` ${ctx.dataset.label}: ${(ctx.raw||0).toFixed(4)} kWh`,
+            }
+          }
+        },
+        scales:{
+          ...CHART_OPTS_BASE.scales,
+          y:{ ...CHART_OPTS_BASE.scales.y, ticks:{ ...CHART_OPTS_BASE.scales.y.ticks, callback: v=>`${v.toFixed(3)} kWh` } }
+        }
+      }
+    });
+
+    // Animate optimized line in after a beat
+    setTimeout(() => {
+      consChart.data.datasets[1].data = optimized;
+      consChart.update();
+    }, 950);
+  }
+
+
+  function rebuildConsumption() {
+    const c = CITIES[selectedCity];
+    let actual;
+    if (apiData && apiData.hourly_actual) {
+      actual = apiData.hourly_actual;
+    } else if (csvData) {
+      actual = aggregateCsvToHourly(csvData);
+    } else {
+      actual = getDemoHourly();
+    }
+    const optimized = runOptimizer(actual, selectedCity);
+    buildConsumptionChart(actual, optimized);
+    computeAndShowResults(actual, optimized, selectedCity);
+    buildCo2Chart(actual, optimized);
+    document.getElementById('consumptionSub').textContent =
+      `${c.label}  ·  Shift fraction: ${(c.shiftFrac*100).toFixed(0)}%  ·  Peak: ${c.peakDisplay}`;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════
+  //  MAIN RUN
+  // ═══════════════════════════════════════════════════════════════════
+  async function runAnalysis() {
+    const emptyState = document.getElementById('emptyState');
+    const chartsArea = document.getElementById('chartsArea');
+
+    emptyState.style.display = 'none';
+    if (!chartsArea.classList.contains('visible')) {
+      chartsArea.classList.add('visible', 'animate-in');
+    } else {
+      chartsArea.classList.add('visible');
+    }
+
+    // Show loading spinners
+    document.getElementById('loadingPrice').classList.add('show');
+
+    // ── Try API if enabled ──
+    let sourceLabel = '';
+    let sourceClass = '';
+
+    if (useApi) {
+      const ok = await fetchApiData(selectedCity);
+      if (ok && apiData) {
+        sourceLabel = `⚡ Live API  ·  ${apiData.city_label || CITIES[selectedCity].label}`;
+        sourceClass = 'api';
+      } else {
+        sourceLabel = '⚠ API unavailable — falling back to local data';
+        sourceClass = 'local';
+      }
+    }
+
+    if (!apiData) {
+      if (csvData) {
+        sourceLabel = '📂 CSV file loaded';
+        sourceClass = 'local';
+      } else {
+        sourceLabel = '🔮 Demo data (upload a CSV for real results)';
+        sourceClass = 'demo';
+      }
+    }
+
+    // Show data source tag
+    const tag = document.getElementById('dataSourceTag');
+    tag.textContent = sourceLabel;
+    tag.className   = `data-source-tag visible ${sourceClass}`;
+
+    // Build price chart
+    setTimeout(() => {
+      document.getElementById('loadingPrice').classList.remove('show');
+      buildPriceChart(selectedCity);
+    }, 400);
+
+    // Build consumption chart
+    setTimeout(() => rebuildConsumption(), 600);
+  }
+
+  // ═══════════════════════════════════════════════════════════════════
+  //  INIT
+  // ═══════════════════════════════════════════════════════════════════
+  updateStats('madison');
+  </script>
+  </body>
+  </html>
